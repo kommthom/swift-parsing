@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Parsing
 
 /// This benchmark reproduces an HTTP parser from [a Rust parser benchmark suite][rust-parser].
@@ -8,8 +8,8 @@ import Parsing
 /// In particular, it benchmarks the same HTTP header as that defined in `one_test`.
 let httpSuite = BenchmarkSuite(name: "HTTP") { suite in
   #if swift(>=5.8)
-    struct RequestParser: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, Request> {
+    struct RequestParser: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, Request> {
         let newline = OneOf {
           "\r\n".utf8
           "\n".utf8

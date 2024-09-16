@@ -1,3 +1,11 @@
+//
+//  StartsWith.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that parses a sequence of elements from its input.
 ///
 /// This parser is named after `Sequence.starts(with:)`, and tests that the input it is parsing
@@ -36,80 +44,74 @@
 /// try "Hello, ".parse(&input)  // ()
 /// input                        // "Blob!"
 /// ```
-public struct StartsWith<Input: Collection>: Parser where Input.SubSequence == Input {
-  public let count: Int
-  public let possiblePrefix: AnyCollection<Input.Element>
-  public let startsWith: (Input) -> Bool
+public struct StartsWith<Input: Collection & Sendable>: ParserProtocol where Input.SubSequence == Input, Input.Element: Sendable {
+	public let count: Int
+	public let possiblePrefix: AnyCollection<Input.Element>
+	public let startsWith: @Sendable (Input) -> Bool
 
-  /// Initializes a parser that successfully returns `Void` when the initial elements of its input
-  /// are equivalent to the elements in another sequence, using the given predicate as the
-  /// equivalence test.
-  ///
-  /// - Parameters:
-  ///   - possiblePrefix: A sequence to compare to the start of an input sequence.
-  ///   - areEquivalent: A predicate that returns `true` if its two arguments are equivalent;
-  ///     otherwise, `false`.
-  @inlinable
-  public init<PossiblePrefix: Collection>(
-    _ possiblePrefix: PossiblePrefix,
-    by areEquivalent: @escaping (Input.Element, Input.Element) -> Bool
-  )
-  where PossiblePrefix.Element == Input.Element {
-    self.count = possiblePrefix.count
-    self.possiblePrefix = AnyCollection(possiblePrefix)
-    self.startsWith = { input in input.starts(with: possiblePrefix, by: areEquivalent) }
-  }
+	/// Initializes a parser that successfully returns `Void` when the initial elements of its input
+	/// are equivalent to the elements in another sequence, using the given predicate as the
+	/// equivalence test.
+	///
+	/// - Parameters:
+	///   - possiblePrefix: A sequence to compare to the start of an input sequence.
+	///   - areEquivalent: A predicate that returns `true` if its two arguments are equivalent;
+	///     otherwise, `false`.
+	@inlinable
+	public init<PossiblePrefix: Collection & Sendable>(_ possiblePrefix: PossiblePrefix, by areEquivalent: @escaping @Sendable (Input.Element, Input.Element) -> Bool) where PossiblePrefix.Element == Input.Element {
+		self.count = possiblePrefix.count
+		self.possiblePrefix = AnyCollection(possiblePrefix)
+		self.startsWith = { input in input.starts(with: possiblePrefix, by: areEquivalent) }
+	}
 
-  @inlinable
-  public func parse(_ input: inout Input) throws {
-    guard self.startsWith(input) else {
-      throw ParsingError.expectedInput(formatValue(self.possiblePrefix), at: input)
-    }
-    input.removeFirst(self.count)
-  }
+	@inlinable
+	public func parse(_ input: inout Input) throws {
+		guard self.startsWith(input) else {
+			throw ParsingError.expectedInput(formatValue(self.possiblePrefix), at: input)
+		}
+		input.removeFirst(self.count)
+	}
 }
 
-extension StartsWith: ParserPrinter where Input: PrependableCollection {
-  @inlinable
-  public func print(_ output: (), into input: inout Input) {
-    input.prepend(contentsOf: self.possiblePrefix)
-  }
+extension AnyCollection: @unchecked @retroactive Sendable where Element: Sendable {}
+
+extension StartsWith: ParserPrinterProtocol & SendableMarker where Input: PrependableCollectionProtocol {
+	@inlinable
+	public func print(_ output: (), into input: inout Input) {
+		input.prepend(contentsOf: self.possiblePrefix)
+	}
 }
 
 extension StartsWith where Input.Element: Equatable {
-  /// Initializes a parser that successfully returns `Void` when the initial elements of its input
-  /// are equivalent to the elements in another sequence.
-  ///
-  /// - Parameter possiblePrefix: A sequence to compare to the start of an input sequence.
-  @inlinable
-  public init<PossiblePrefix: Collection>(_ possiblePrefix: PossiblePrefix)
-  where PossiblePrefix.Element == Input.Element {
-    self.init(possiblePrefix, by: ==)
-  }
+	/// Initializes a parser that successfully returns `Void` when the initial elements of its input
+	/// are equivalent to the elements in another sequence.
+	///
+	/// - Parameter possiblePrefix: A sequence to compare to the start of an input sequence.
+	@inlinable
+	public init<PossiblePrefix: Collection & Sendable>(_ possiblePrefix: PossiblePrefix) where PossiblePrefix.Element == Input.Element {
+		self.init(
+			possiblePrefix,
+			by: { $0 == $1 }
+		)
+	}
 }
 
 extension StartsWith where Input == Substring {
-  @_disfavoredOverload
-  @inlinable
-  public init(
-    _ possiblePrefix: String,
-    by areEquivalent: @escaping (Input.Element, Input.Element) -> Bool = (==)
-  ) {
-    self.init(possiblePrefix[...], by: areEquivalent)
-  }
+	@_disfavoredOverload
+	@inlinable
+	public init(_ possiblePrefix: String, by areEquivalent: @escaping @Sendable (Input.Element, Input.Element) -> Bool = { $0 == $1 }) {
+		self.init(possiblePrefix[...], by: areEquivalent)
+	}
 }
 
 extension StartsWith where Input == Substring.UTF8View {
-  @_disfavoredOverload
-  @inlinable
-  public init(
-    _ possiblePrefix: String.UTF8View,
-    by areEquivalent: @escaping (Input.Element, Input.Element) -> Bool = (==)
-  ) {
-    self.init(String(possiblePrefix)[...].utf8, by: areEquivalent)
-  }
+	@_disfavoredOverload
+	@inlinable
+	public init(_ possiblePrefix: String.UTF8View, by areEquivalent: @escaping @Sendable (Input.Element, Input.Element) -> Bool = { $0 == $1 }) {
+		self.init(String(possiblePrefix)[...].utf8, by: areEquivalent)
+	}
 }
 
 extension Parsers {
-  public typealias StartsWith = Parsing.StartsWith  // NB: Convenience type alias for discovery
+	public typealias StartsWith = Parsing.StartsWith  // NB: Convenience type alias for discovery
 }

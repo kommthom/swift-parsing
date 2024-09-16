@@ -3,8 +3,8 @@ import XCTest
 
 final class ConsumedTests: XCTestCase {
   func testConsumed() throws {
-    struct ConsumedWhitespace: Parser {
-      var body: some Parser<Substring.UTF8View, Substring.UTF8View> {
+    struct ConsumedWhitespace: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, Substring.UTF8View> {
         Consumed { Whitespace() }
       }
     }

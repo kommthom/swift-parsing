@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Foundation
 import Parsing
 
@@ -24,8 +24,8 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
     }
 
     do {
-      struct UserParser: Parser {
-        var body: some Parser<Substring, User> {
+      struct UserParser: ParserProtocol {
+        var body: some ParserProtocol<Substring, User> {
           Parse(User.init(id:name:isAdmin:)) {
             Int.parser()
             ","
@@ -36,8 +36,8 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
         }
       }
 
-      struct UsersParser: Parser {
-        var body: some Parser<Substring, [User]> {
+      struct UsersParser: ParserProtocol {
+        var body: some ParserProtocol<Substring, [User]> {
           Many {
             UserParser()
           } separator: {
@@ -49,7 +49,7 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
       }
 
       let users = UsersParser()
-      suite.benchmark("Parser: Substring") {
+      suite.benchmark("ParserProtocol: Substring") {
         var input = input[...]
         output = try users.parse(&input)
       } tearDown: {
@@ -58,8 +58,8 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
     }
 
     do {
-      struct UserParser: Parser {
-        var body: some Parser<Substring.UTF8View, User> {
+      struct UserParser: ParserProtocol {
+        var body: some ParserProtocol<Substring.UTF8View, User> {
           Parse(User.init(id:name:isAdmin:)) {
             Int.parser()
             ",".utf8
@@ -70,8 +70,8 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
         }
       }
 
-      struct UsersParser: Parser {
-        var body: some Parser<Substring.UTF8View, [User]> {
+      struct UsersParser: ParserProtocol {
+        var body: some ParserProtocol<Substring.UTF8View, [User]> {
           Many {
             UserParser()
           } separator: {
@@ -83,7 +83,7 @@ let readmeExampleSuite = BenchmarkSuite(name: "README Example") { suite in
       }
 
       let users = UsersParser()
-      suite.benchmark("Parser: UTF8") {
+      suite.benchmark("ParserProtocol: UTF8") {
         var input = input[...].utf8
         output = try users.parse(&input)
       } tearDown: {

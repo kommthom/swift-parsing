@@ -1,10 +1,10 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Foundation
 import Parsing
 
 #if swift(>=5.8)
-  struct DateTime: Parser {
-    var body: some Parser<Substring.UTF8View, Date> {
+  struct DateTime: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Date> {
       Parse(Date.init(year:month:day:hour:minute:second:nanosecond:timeZone:)) {
         Digits(4)
         "-".utf8
@@ -84,7 +84,7 @@ let dateSuite = BenchmarkSuite(name: "Date") { suite in
     let expected = Date(timeIntervalSince1970: 296_613_120)
     var output: Date!
 
-    suite.benchmark("Parser") {
+    suite.benchmark("ParserProtocol") {
       output = try DateTime().parse(input)
     } tearDown: {
       precondition(output == expected)

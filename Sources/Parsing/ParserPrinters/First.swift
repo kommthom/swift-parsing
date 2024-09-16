@@ -1,3 +1,11 @@
+//
+//  First.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that consumes the first element from a collection.
 ///
 /// This parser is named after `Sequence.first`, and attempts to parse the first element from a
@@ -21,27 +29,27 @@
 /// // 1 |
 /// //   | ^ expected element
 /// ```
-public struct First<Input: Collection>: Parser where Input.SubSequence == Input {
-  @inlinable
-  public init() {}
+public struct First<Input: Collection & Sendable>: ParserProtocol where Input.SubSequence == Input, Input.Element: Sendable{
+	@inlinable
+	public init() {}
 
-  @inlinable
-  public func parse(_ input: inout Input) throws -> Input.Element {
-    guard let first = input.first else {
-      throw ParsingError.expectedInput("element", at: input)
-    }
-    input.removeFirst()
-    return first
-  }
+	@inlinable
+	public func parse(_ input: inout Input) throws -> Input.Element where Input: Sendable {
+		guard let first = input.first else {
+			throw ParsingError.expectedInput("element", at: input)
+		}
+		input.removeFirst()
+		return first
+	}
 }
 
-extension First: ParserPrinter where Input: PrependableCollection {
-  @inlinable
-  public func print(_ output: Input.Element, into input: inout Input) {
-    input.prepend(contentsOf: CollectionOfOne(output))
-  }
+extension First: ParserPrinterProtocol where Input: PrependableCollectionProtocol {
+	@inlinable
+	public func print(_ output: Input.Element, into input: inout Input) {
+		input.prepend(contentsOf: CollectionOfOne(output))
+	}
 }
 
 extension Parsers {
-  public typealias First = Parsing.First  // NB: Convenience type alias for discovery
+	public typealias First = Parsing.First  // NB: Convenience type alias for discovery
 }

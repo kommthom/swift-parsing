@@ -3,7 +3,7 @@ import XCTest
 
 final class BacktrackTests: XCTestCase {
   func testFailure() {
-    let parser: some Parser<Substring, Substring> = Backtracking {
+    let parser: some ParserProtocol<Substring, Substring> = Backtracking {
       Prefix(2) { $0 == "A" }
     }
 
@@ -13,7 +13,7 @@ final class BacktrackTests: XCTestCase {
   }
 
   func testSuccess() throws {
-    let parser: some Parser<Substring, Substring> = Backtracking {
+    let parser: some ParserProtocol<Substring, Substring> = Backtracking {
       Prefix(1) { $0 == "A" }
     }
     var input = "AB"[...]
@@ -23,7 +23,7 @@ final class BacktrackTests: XCTestCase {
   }
 
   func testPrint() throws {
-    let parser: some ParserPrinter<Substring, Substring> = Backtracking {
+    let parser: some ParserPrinterProtocol<Substring, Substring> = Backtracking {
       Prefix(2) { $0 == "A" }
     }
 

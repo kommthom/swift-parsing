@@ -51,8 +51,8 @@ final class CaseIterableRawRepresentableTests: XCTestCase {
       case blobJr = 42
     }
 
-    struct People: Parser {
-      var body: some Parser<Substring.UTF8View, [Person]> {
+    struct People: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Person]> {
         Many {
           Person.parser()
         } separator: {
@@ -97,8 +97,8 @@ final class CaseIterableRawRepresentableTests: XCTestCase {
       case blobJr = -42
     }
 
-    struct People: Parser {
-      var body: some Parser<Substring.UTF8View, [Person]> {
+    struct People: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Person]> {
         Many {
           Person.parser()
         } separator: {

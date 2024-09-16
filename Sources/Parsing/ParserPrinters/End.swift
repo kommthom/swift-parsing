@@ -1,3 +1,11 @@
+//
+//  End.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 31.08.24.
+//
+
 /// A parser that succeeds if the input is empty, and fails otherwise.
 ///
 /// Useful as a final parser in a long sequence of parsers to guarantee that all input has been
@@ -16,38 +24,32 @@
 ///
 /// > Note: This parser is automatically inserted when you invoke the non-incremental
 /// > ``Parser/parse(_:)-6h1d0`` and ``Parser/parse(_:)-2wzcq`` methods.
-public struct End<Input: Sequence>: ParserPrinter {
-  @inlinable
-  public init() {}
+public struct End<Input: Sequence & Sendable>: ParserPrinterProtocol {
+	@inlinable
+	public init() {}
 
-  @inlinable
-  public func parse(_ input: inout Input) throws {
-    var iterator = input.makeIterator()
-    guard iterator.next() == nil else {
-      throw ParsingError.expectedInput("end of input", at: input)
-    }
-  }
+	@inlinable
+	public func parse(_ input: inout Input) throws {
+		var iterator = input.makeIterator()
+		guard iterator.next() == nil else { throw ParsingError.expectedInput("end of input", at: input) }
+	}
 
-  @inlinable
-  public func print(_ output: (), into input: inout Input) throws {
-    var iterator = input.makeIterator()
-    guard iterator.next() == nil else {
-      let description = describe(input).map { "\n\n\($0.debugDescription)" } ?? ""
-      throw PrintingError.failed(
-        summary: """
-          round-trip expectation failed
+	@inlinable
+	public func print(_ output: (), into input: inout Input) throws {
+		var iterator = input.makeIterator()
+		guard iterator.next() == nil else {
+			let description = describe(input).map { "\n\n\($0.debugDescription)" } ?? ""
+			throw PrintingError.failed(
+				summary: """
+				round-trip expectation failed
 
-          An "End" parser-printer expected no more input, but more was printed.\(description)
+				An "End" parser-printer expected no more input, but more was printed.\(description)
 
-          During a round-trip, the "End" parser-printer would have failed to parse at this \
-          remaining input.
-          """,
-        input: input
-      )
-    }
-  }
-}
-
-extension Parsers {
-  public typealias End = Parsing.End  // NB: Convenience type alias for discovery
+				During a round-trip, the "End" parser-printer would have failed to parse at this \
+				remaining input.
+				""",
+				input: input
+			)
+		}
+	}
 }

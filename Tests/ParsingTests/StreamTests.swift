@@ -11,11 +11,11 @@ final class StreamTests: XCTestCase {
     )
 
     let output = try XCTUnwrap(
-      Stream {
-        Int.parser(of: ArraySlice<UInt8>.self)
-        Array("\n".utf8)
-      }
-      .parse(&stream)
+		Parsing.Stream {
+			Int.parser(of: ArraySlice<UInt8>.self)
+			Array("\n".utf8)
+		}
+		.parse(&stream)
     )
 
     XCTAssertEqual(Array(output), Array(1...20))

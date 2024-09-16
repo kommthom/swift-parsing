@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Parsing
 
 /// This benchmark demonstrates how to parse on multiple string abstractions at once, and the costs
@@ -22,7 +22,7 @@ let stringAbstractionsSuite = BenchmarkSuite(name: "String Abstractions") { suit
 
   var output: [Int]!
   suite.benchmark("Substring") {
-    let parser: some Parser<Substring.UTF8View, [Int]> = Many {
+    let parser: some ParserProtocol<Substring.UTF8View, [Int]> = Many {
       Int.parser()
     } separator: {
       From(.substring) { "\u{00E9}" }
@@ -35,7 +35,7 @@ let stringAbstractionsSuite = BenchmarkSuite(name: "String Abstractions") { suit
   }
 
   suite.benchmark("UTF8") {
-    let parser: some Parser<Substring.UTF8View, [Int]> = Many {
+    let parser: some ParserProtocol<Substring.UTF8View, [Int]> = Many {
       Int.parser()
     } separator: {
       OneOf {

@@ -2,8 +2,8 @@ import Parsing
 import XCTest
 
 final class ConditionalTests: XCTestCase {
-  struct MultipleOf2: Parser {
-    var body: some Parser<Substring.UTF8View, Bool> {
+  struct MultipleOf2: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Bool> {
       Int.parser()
         .flatMap { n in
           if n.isMultiple(of: 2) {

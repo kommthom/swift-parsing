@@ -1,19 +1,27 @@
-extension Parser {
-  /// Wraps this parser with a type eraser.
-  ///
-  /// This form of _type erasure_ preserves abstraction across API boundaries, such as different
-  /// modules.
-  ///
-  /// When you expose your composed parsers as the ``AnyParser`` type, you can change the underlying
-  /// implementation over time without affecting existing clients.
-  ///
-  /// Equivalent to passing `self` to `AnyParser.init`.
-  ///
-  /// - Returns: An ``AnyParser`` wrapping this parser.
-  @inlinable
-  public func eraseToAnyParser() -> AnyParser<Input, Output> {
-    .init(self)
-  }
+//
+//  AnyParser.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 31.08.24.
+//
+
+extension ParserProtocol {
+	/// Wraps this parser with a type eraser.
+	///
+	/// This form of _type erasure_ preserves abstraction across API boundaries, such as different
+	/// modules.
+	///
+	/// When you expose your composed parsers as the ``AnyParser`` type, you can change the underlying
+	/// implementation over time without affecting existing clients.
+	///
+	/// Equivalent to passing `self` to `AnyParser.init`.
+	///
+	/// - Returns: An ``AnyParser`` wrapping this parser.
+	@inlinable
+	public func eraseToAnyParser() -> AnyParser<Input, Output> {
+		.init(self)
+	}
 }
 
 /// A type-erased parser of `Output` from `Input`.
@@ -24,40 +32,40 @@ extension Parser {
 /// Use ``AnyParser`` to wrap a parser whose type has details you don't want to expose across API
 /// boundaries, such as different modules. When you use type erasure this way, you can change the
 /// underlying parser over time without affecting existing clients.
-public struct AnyParser<Input, Output>: Parser {
-  @usableFromInline
-  let parser: (inout Input) throws -> Output
+public struct AnyParser<Input: Sendable, Output: Sendable>: ParserProtocol {
+	@usableFromInline
+	let parser: @Sendable (inout Input) throws -> Output
 
-  /// Creates a type-erasing parser to wrap the given parser.
-  ///
-  /// Equivalent to calling ``Parser/eraseToAnyParser()`` on the parser.
-  ///
-  /// - Parameter parser: A parser to wrap with a type eraser.
-  @inlinable
-  public init<P: Parser>(_ parser: P) where P.Input == Input, P.Output == Output {
-    self.init(parser.parse)
-  }
+	/// Creates a type-erasing parser to wrap the given parser.
+	///
+	/// Equivalent to calling ``Parser/eraseToAnyParser()`` on the parser.
+	///
+	/// - Parameter parser: A parser to wrap with a type eraser.
+	@inlinable
+	public init<P: ParserProtocol>(_ parser: P) where P.Input == Input, P.Output == Output {
+		self.init(parser.parse)
+	}
 
-  /// Creates a parser that wraps the given closure in its ``parse(_:)`` method.
-  ///
-  /// - Parameter parse: A closure that attempts to parse an output from an input. `parse` is
-  ///   executed each time the ``parse(_:)`` method is called on the resulting parser.
-  @inlinable
-  public init(_ parse: @escaping (inout Input) throws -> Output) {
-    self.parser = parse
-  }
+	/// Creates a parser that wraps the given closure in its ``parse(_:)`` method.
+	///
+	/// - Parameter parse: A closure that attempts to parse an output from an input. `parse` is
+	///   executed each time the ``parse(_:)`` method is called on the resulting parser.
+	@inlinable
+	public init(_ parse: @escaping @Sendable (inout Input) throws -> Output) {
+		self.parser = parse
+	}
 
-  @inlinable
-  public func parse(_ input: inout Input) throws -> Output {
-    try self.parser(&input)
-  }
+	@inlinable
+	public func parse(_ input: inout Input) throws -> Output {
+		try self.parser(&input)
+	}
 
-  @inlinable
-  public func eraseToAnyParser() -> Self {
-    self
-  }
+	@inlinable
+	public func eraseToAnyParser() -> Self {
+		self
+	}
 }
 
 extension Parsers {
-  public typealias AnyParser = Parsing.AnyParser  // NB: Convenience type alias for discovery
+	public typealias AnyParser = Parsing.AnyParser  // NB: Convenience type alias for discovery
 }

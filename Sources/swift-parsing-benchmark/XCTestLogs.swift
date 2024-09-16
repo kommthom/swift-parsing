@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Parsing
 
 /// This benchmark demonstrates how to build process a dump of Xcode test logs to transform them
@@ -7,7 +7,7 @@ import Parsing
 let xcodeLogsSuite = BenchmarkSuite(name: "Xcode Logs") { suite in
   var output: [TestResult]!
 
-  suite.benchmark("Parser") {
+  suite.benchmark("ParserProtocol") {
     var input = xcodeLogs[...].utf8
     output = try TestResults().parse(&input)
   } tearDown: {
@@ -15,8 +15,8 @@ let xcodeLogsSuite = BenchmarkSuite(name: "Xcode Logs") { suite in
   }
 }
 
-private struct TestCaseFinishedLine: Parser {
-  var body: some Parser<Substring.UTF8View, Double> {
+private struct TestCaseFinishedLine: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, Double> {
     Skip {
       PrefixThrough(" (".utf8)
     }
@@ -25,8 +25,8 @@ private struct TestCaseFinishedLine: Parser {
   }
 }
 
-private struct TestCaseStartedLine: Parser {
-  var body: some Parser<Substring.UTF8View, Substring> {
+private struct TestCaseStartedLine: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, Substring> {
     Skip {
       PrefixUpTo("Test Case '-[".utf8)
     }
@@ -36,8 +36,8 @@ private struct TestCaseStartedLine: Parser {
   }
 }
 
-private struct FileName: Parser {
-  var body: some Parser<Substring.UTF8View, Substring> {
+private struct FileName: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, Substring> {
     "/".utf8
     PrefixThrough(".swift".utf8)
       .compactMap { $0.split(separator: .init(ascii: "/")).last }
@@ -45,8 +45,8 @@ private struct FileName: Parser {
   }
 }
 
-private struct _TestCaseBody: Parser {
-  var body: some Parser<Substring.UTF8View, (Substring, Int, Substring)> {
+private struct _TestCaseBody: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, (Substring, Int, Substring)> {
     FileName()
     ":".utf8
     Int.parser()
@@ -57,7 +57,7 @@ private struct _TestCaseBody: Parser {
   }
 }
 
-struct TestCaseBody: Parser {
+struct TestCaseBody: ParserProtocol {
   func parse(
     _ input: inout Substring.UTF8View
   ) throws -> (file: Substring, line: Int, message: Substring) {
@@ -100,8 +100,8 @@ enum TestResult {
   case passed(testName: Substring, time: Double)
 }
 
-private struct TestFailed: Parser {
-  var body: some Parser<Substring.UTF8View, [TestResult]> {
+private struct TestFailed: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, [TestResult]> {
     Parse { testName, bodyData, time in
       bodyData.map { body in
         TestResult.failed(
@@ -120,8 +120,8 @@ private struct TestFailed: Parser {
   }
 }
 
-private struct TestPassed: Parser {
-  var body: some Parser<Substring.UTF8View, [TestResult]> {
+private struct TestPassed: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, [TestResult]> {
     Parse {
       [TestResult.passed(testName: $0, time: $1)]
     } with: {
@@ -131,9 +131,9 @@ private struct TestPassed: Parser {
   }
 }
 
-private struct TestResults: Parser {
-  var body: some Parser<Substring.UTF8View, [TestResult]> {
-    Many(into: [TestResult](), +=) {
+private struct TestResults: ParserProtocol {
+  var body: some ParserProtocol<Substring.UTF8View, [TestResult]> {
+	  Many(into: [TestResult](), { $0 += $1 } ) {
       OneOf {
         TestFailed()
         TestPassed()

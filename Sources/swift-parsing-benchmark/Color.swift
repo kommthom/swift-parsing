@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Parsing
 
 /// This benchmark demonstrates how to parse a hexadecimal color.
@@ -9,7 +9,7 @@ let colorSuite = BenchmarkSuite(name: "Color") { suite in
     let red, green, blue: UInt8
   }
 
-  struct HexByte: ParserPrinter {
+  struct HexByte: ParserPrinterProtocol {
     func parse(_ input: inout Substring.UTF8View) throws -> UInt8 {
       let prefix = input.prefix(2)
       guard
@@ -26,8 +26,8 @@ let colorSuite = BenchmarkSuite(name: "Color") { suite in
     }
   }
 
-  struct HexColor: ParserPrinter {
-    var body: some ParserPrinter<Substring.UTF8View, Color> {
+  struct HexColor: ParserPrinterProtocol {
+    var body: some ParserPrinterProtocol<Substring.UTF8View, Color> {
       ParsePrint(.memberwise(Color.init(red:green:blue:))) {
         "#".utf8
         HexByte()

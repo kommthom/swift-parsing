@@ -1,3 +1,11 @@
+//
+//  Optionally.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that runs the given parser and succeeds with `nil` if it fails.
 ///
 /// Use this parser when you are parsing into an output data model that contains `nil`.
@@ -32,30 +40,30 @@
 /// Int.parser()
 ///   .replaceError(with: 0)
 /// ```
-public struct Optionally<Input, Wrapped: Parser>: Parser where Wrapped.Input == Input {
-  public let wrapped: Wrapped
-
-  @inlinable
-  public init(@ParserBuilder<Input> _ build: () -> Wrapped) {
-    self.wrapped = build()
-  }
-
-  @inlinable
-  public func parse(_ input: inout Wrapped.Input) -> Wrapped.Output? {
-    let original = input
-    do {
-      return try self.wrapped.parse(&input)
-    } catch {
-      input = original
-      return nil
-    }
-  }
+public struct Optionally<Input: Sendable, Wrapped: ParserProtocol>: ParserProtocol where Wrapped.Input == Input {
+	public let wrapped: Wrapped
+	
+	@inlinable
+	public init(@ParserBuilder<Input> _ build: @Sendable () -> Wrapped) {
+		self.wrapped = build()
+	}
+	
+	@inlinable
+	public func parse(_ input: inout Wrapped.Input) -> Wrapped.Output? {
+		let original = input
+		do {
+			return try self.wrapped.parse(&input)
+		} catch {
+			input = original
+			return nil
+		}
+	}
 }
 
-extension Optionally: ParserPrinter where Wrapped: ParserPrinter {
-  @inlinable
-  public func print(_ output: Wrapped.Output?, into input: inout Wrapped.Input) rethrows {
-    guard let output = output else { return }
-    try self.wrapped.print(output, into: &input)
-  }
+extension Optionally: ParserPrinterProtocol & SendableMarker where Wrapped: ParserPrinterProtocol {
+	@inlinable
+	public func print(_ output: Wrapped.Output?, into input: inout Wrapped.Input) rethrows {
+		guard let output = output else { return }
+		try self.wrapped.print(output, into: &input)
+	}
 }

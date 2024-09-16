@@ -1,14 +1,14 @@
-// swift-tools-version:5.7
+// swift-tools-version:6.0
 
 import PackageDescription
 
 let package = Package(
   name: "swift-parsing",
   platforms: [
-    .iOS(.v13),
-    .macOS(.v10_15),
-    .tvOS(.v13),
-    .watchOS(.v6),
+    .iOS(.v18),
+    .macOS(.v15),
+    .tvOS(.v16),
+    .watchOS(.v8),
   ],
   products: [
     .library(
@@ -18,7 +18,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
-    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.0.0"),
+    .package(url: "https://github.com/pointfreeco/swift-case-paths", from: "1.5.5"),
     .package(url: "https://github.com/google/swift-benchmark", from: "0.1.1"),
   ],
   targets: [

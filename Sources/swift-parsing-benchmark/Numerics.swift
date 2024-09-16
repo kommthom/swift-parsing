@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Foundation
 import Parsing
 
@@ -47,8 +47,8 @@ let numericsSuite = BenchmarkSuite(name: "Numerics") { suite in
     let expected = Array(1...100_000)
     var output: [Int]!
 
-    struct IntsParser: Parser {
-      var body: some Parser<Substring.UTF8View, [Int]> {
+    struct IntsParser: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Int]> {
         Many {
           Int.parser()
         } separator: {
@@ -126,8 +126,8 @@ let numericsSuite = BenchmarkSuite(name: "Numerics") { suite in
     let expected = (1...100_000).map(Double.init)
     var output: [Double]!
 
-    struct DoublesParser: Parser {
-      var body: some Parser<Substring.UTF8View, [Double]> {
+    struct DoublesParser: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Double]> {
         Many {
           Double.parser()
         } separator: {

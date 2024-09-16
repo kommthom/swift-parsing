@@ -1,3 +1,11 @@
+//
+//  OneOf.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that attempts to run a number of parsers till one succeeds.
 ///
 /// Use this parser to list out a number of parsers in a ``OneOfBuilder`` result builder block.
@@ -156,28 +164,29 @@
 /// in the builder closure, it does _not_ undo the consumption of the last parser. If you want to
 /// enforce backtracking for the entire ``OneOf`` parser you need to further wrap it inside the
 /// ``Backtracking`` parser.
-public struct OneOf<Input, Output, Parsers: Parser>: Parser
-where Parsers.Input == Input, Parsers.Output == Output {
-  public let parsers: Parsers
-
-  @inlinable
-  public init(
-    input inputType: Input.Type = Input.self,
-    output outputType: Output.Type = Output.self,
-    @OneOfBuilder<Input, Output> _ build: () -> Parsers
-  ) {
-    self.parsers = build()
-  }
-
-  @inlinable
-  public func parse(_ input: inout Parsers.Input) rethrows -> Parsers.Output {
-    try self.parsers.parse(&input)
-  }
+public struct OneOf<Input: Sendable, Output: Sendable, Parsers: ParserProtocol>: ParserProtocol where Parsers.Input == Input, Parsers.Output == Output {
+	public let parsers: Parsers
+	
+	@inlinable
+	public init(
+		input inputType: Input.Type = Input.self,
+		output outputType: Output.Type = Output.self,
+		@OneOfBuilder<Input, Output> _ build: @Sendable () -> Parsers
+	) {
+		self.parsers = build()
+	}
+	
+	@inlinable
+	public func parse(_ input: inout Parsers.Input) rethrows -> Parsers.Output {
+		try self.parsers.parse(&input)
+	}
 }
 
-extension OneOf: ParserPrinter where Parsers: ParserPrinter {
-  @inlinable
-  public func print(_ output: Parsers.Output, into input: inout Parsers.Input) rethrows {
-    try self.parsers.print(output, into: &input)
-  }
+extension OneOf: SendableMarker where Parsers: ParserPrinterProtocol {}
+
+extension OneOf: ParserPrinterProtocol where Parsers: ParserPrinterProtocol {
+	@inlinable
+	public func print(_ output: Parsers.Output, into input: inout Parsers.Input) rethrows {
+		try self.parsers.print(output, into: &input)
+	}
 }

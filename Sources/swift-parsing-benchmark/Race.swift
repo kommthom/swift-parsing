@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Parsing
 
 /// This benchmark implements a parser for a custom format covered in
@@ -26,11 +26,11 @@ let raceSuite = BenchmarkSuite(name: "Race") { suite in
       let path: [Coordinate]
     }
 
-    struct SignParser: ParserPrinter {
+    struct SignParser: ParserPrinterProtocol {
       let positive: String.UTF8View
       let negative: String.UTF8View
 
-      var body: some ParserPrinter<Substring.UTF8View, Double> {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, Double> {
         ParsePrint(.multiplySign) {
           Double.parser()
           "° ".utf8
@@ -42,8 +42,8 @@ let raceSuite = BenchmarkSuite(name: "Race") { suite in
       }
     }
 
-    struct CoordinateParser: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, Coordinate> {
+    struct CoordinateParser: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, Coordinate> {
         ParsePrint(.memberwise(Coordinate.init(latitude:longitude:))) {
           SignParser(positive: "N".utf8, negative: "S".utf8)
           Skip {
@@ -55,8 +55,8 @@ let raceSuite = BenchmarkSuite(name: "Race") { suite in
       }
     }
 
-    struct RaceParser: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, Race> {
+    struct RaceParser: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, Race> {
         ParsePrint(.memberwise(Race.init(location:entranceFee:difficulty:path:))) {
           Prefix { $0 != UInt8(ascii: ",") }.map(.string)
 
@@ -92,8 +92,8 @@ let raceSuite = BenchmarkSuite(name: "Race") { suite in
       }
     }
 
-    struct RacesParser: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, [Race]> {
+    struct RacesParser: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, [Race]> {
         Many {
           RaceParser()
         } separator: {
@@ -190,16 +190,18 @@ let raceSuite = BenchmarkSuite(name: "Race") { suite in
   #endif
 }
 
-extension Conversion where Self == AnyConversion<(Double, Double), Double> {
-  fileprivate static var multiplySign: Self {
+extension AnyConversion: SendableMarker where Input == (Double, Double) {}
+
+extension ConversionProtocol where Self == AnyConversion<(Double, Double), Double> {
+	fileprivate static var multiplySign: Self {
     .init(
-      apply: *,
+		apply: { $0 * $1 },
       unapply: { $0 < 0 ? (-$0, -1) : ($0, 1) }
     )
   }
 }
 
-extension Conversion where Self == AnyConversion<[Void], Int> {
+extension ConversionProtocol where Self == AnyConversion<[Void], Int> {
   fileprivate static var count: Self {
     .init(
       apply: { $0.count },

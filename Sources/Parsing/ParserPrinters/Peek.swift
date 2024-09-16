@@ -1,3 +1,11 @@
+//
+//  Peek.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that runs the given parser, but does not consume any input.
 ///
 /// It lets the upstream parser "peek" into the input without consuming it.
@@ -23,38 +31,38 @@
 /// // 1 | 1_foo123
 /// //   | ^ expected 1 element satisfying predicate
 /// ```
-public struct Peek<Input, Upstream: Parser>: ParserPrinter where Upstream.Input == Input {
-  public let upstream: Upstream
-
-  /// Construct a parser that runs the given parser, but does not consume any input.
-  ///
-  /// - Parameter build: A parser this parser wants to inspect.
-  @inlinable
-  public init(@ParserBuilder<Input> _ build: () -> Upstream) {
-    self.upstream = build()
-  }
-
-  @inlinable
-  public func parse(_ input: inout Upstream.Input) rethrows {
-    let original = input
-    _ = try self.upstream.parse(&input)
-    input = original
-  }
-
-  @inlinable
-  public func print(_ output: (), into input: inout Upstream.Input) throws {
-    do {
-      var i = input
-      _ = try self.upstream.parse(&i)
-    } catch {
-      throw PrintingError.failed(
-        summary: """
-          round-trip expectation failed
-
-          A "Peek" parser-printer was handed a value to print that it would have failed to parse.
-          """,
-        input: input
-      )
-    }
-  }
+public struct Peek<Input: Sendable, Upstream: ParserProtocol>: ParserPrinterProtocol where Upstream.Input == Input {
+	public let upstream: Upstream
+	
+	/// Construct a parser that runs the given parser, but does not consume any input.
+	///
+	/// - Parameter build: A parser this parser wants to inspect.
+	@inlinable
+	public init(@ParserBuilder<Input> _ build: @Sendable () -> Upstream) {
+		self.upstream = build()
+	}
+	
+	@inlinable
+	public func parse(_ input: inout Upstream.Input) rethrows {
+		let original = input
+		_ = try self.upstream.parse(&input)
+		input = original
+	}
+	
+	@inlinable
+	public func print(_ output: (), into input: inout Upstream.Input) throws {
+		do {
+			var i = input
+			_ = try self.upstream.parse(&i)
+		} catch {
+			throw PrintingError.failed(
+				summary: """
+	round-trip expectation failed
+	
+	A "Peek" parser-printer was handed a value to print that it would have failed to parse.
+	""",
+				input: input
+			)
+		}
+	}
 }

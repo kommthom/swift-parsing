@@ -5,7 +5,7 @@ class ParsingErrorTests: XCTestCase {
   func testUnknownInput() {
     struct MyInput {}
     struct MyOutput {}
-    struct MyParser: Parser {
+    struct MyParser: ParserProtocol {
       func parse(_ input: inout MyInput) throws -> MyOutput {
         struct MyError: Error {}
         throw MyError()

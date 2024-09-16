@@ -1,3 +1,11 @@
+//
+//  Always.swift
+//  swift-parsing
+//
+//  Created by https://github.com/stephencelis
+//  Updated by Thomas Benninghaus on 01.09.24.
+//
+
 /// A parser that always succeeds with the given value, and does not consume any input.
 ///
 /// While not very useful on its own, the `Always` parser can be helpful when combined with other
@@ -61,23 +69,23 @@
 /// > Note: While `Always` can be used as the last alternative of a ``OneOf`` to specify a default
 /// > output, the resulting parser will be throwing. Instead, prefer ``Parser/replaceError(with:)``,
 /// > which returns a non-throwing parser.
-public struct Always<Input, Output>: ParserPrinter {
-  public let output: Output
+public struct Always<Input: Sendable, Output: Sendable>: ParserPrinterProtocol {
+	public let output: Output
 
-  @inlinable
-  public init(_ output: Output) {
-    self.output = output
-  }
+	@inlinable
+	public init(_ output: Output) {
+		self.output = output
+	}
 
-  @inlinable
-  public func parse(_ input: inout Input) -> Output {
-    self.output
-  }
+	@inlinable
+	public func parse(_ input: inout Input) -> Output {
+		self.output
+	}
 
-  @inlinable
-  public func print(_ output: Output, into input: inout Input) {}
+	@inlinable
+	public func print(_ output: Output, into input: inout Input) {}
 }
 
 extension Parsers {
-  public typealias Always = Parsing.Always  // NB: Convenience type alias for discovery
+	public typealias Always = Parsing.Always  // NB: Convenience type alias for discovery
 }

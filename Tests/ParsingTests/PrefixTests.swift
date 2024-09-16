@@ -89,8 +89,8 @@ final class PrefixTests: XCTestCase {
   }
 
   func testPrintUpstreamInputFailure() {
-    struct MyParserPrinter: ParserPrinter {
-      var body: some ParserPrinter<Substring, (Substring, Character)> {
+    struct MyParserPrinter: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring, (Substring, Character)> {
         Prefix { $0 != "\n" }
         First()
       }
@@ -111,8 +111,8 @@ final class PrefixTests: XCTestCase {
   }
 
   func testPrintWithMaxCountAllowMatchingNextElement() {
-    struct MyParserPrinter: ParserPrinter {
-      var body: some ParserPrinter<Substring, (Substring, Character)> {
+    struct MyParserPrinter: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring, (Substring, Character)> {
         Prefix(3) { $0.isNumber }
         First()
       }

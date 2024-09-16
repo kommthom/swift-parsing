@@ -14,8 +14,8 @@ class ManyTests: XCTestCase {
   }
 
   func testSeparator() {
-    struct IntsParser: Parser {
-      var body: some Parser<Substring.UTF8View, [Int]> {
+    struct IntsParser: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Int]> {
         Many {
           Int.parser()
         } separator: {
@@ -34,8 +34,8 @@ class ManyTests: XCTestCase {
   }
 
   func testTrailingSeparator() {
-    struct IntsParser: Parser {
-      var body: some Parser<Substring.UTF8View, [Int]> {
+    struct IntsParser: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Int]> {
         Many {
           Int.parser()
         } separator: {
@@ -54,8 +54,8 @@ class ManyTests: XCTestCase {
   }
 
   func testMinimum() {
-    struct SixOrMoreInts: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, [Int]> {
+    struct SixOrMoreInts: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, [Int]> {
         Many(6...) {
           Int.parser()
         } separator: {
@@ -94,8 +94,8 @@ class ManyTests: XCTestCase {
       )
     }
 
-    struct FiveOrMoreInts: Parser {
-      var body: some Parser<Substring.UTF8View, [Int]> {
+    struct FiveOrMoreInts: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Int]> {
         Many(5...) {
           Int.parser()
         } separator: {
@@ -113,8 +113,8 @@ class ManyTests: XCTestCase {
   }
 
   func testMaximum() {
-    struct AtMostThreeInts: ParserPrinter {
-      var body: some ParserPrinter<Substring.UTF8View, [Int]> {
+    struct AtMostThreeInts: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring.UTF8View, [Int]> {
         Many(...3) {
           Int.parser()
         } separator: {
@@ -147,9 +147,9 @@ class ManyTests: XCTestCase {
   }
 
   func testReduce() {
-    struct SumParser: Parser {
-      var body: some Parser<Substring.UTF8View, Int> {
-        Many(into: 0, +=) {
+    struct SumParser: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, Int> {
+		  Many(into: 0, { $0 += $1 } ) {
           Int.parser()
         } separator: {
           ",".utf8
@@ -167,8 +167,8 @@ class ManyTests: XCTestCase {
   }
 
   func testEmptyComponents() {
-    struct MACAddressParser: Parser {
-      var body: some Parser<Substring, [Substring]> {
+    struct MACAddressParser: ParserProtocol {
+      var body: some ParserProtocol<Substring, [Substring]> {
         Many {
           Prefix(while: \.isHexDigit)
         } separator: {
@@ -191,8 +191,8 @@ class ManyTests: XCTestCase {
       var isAdmin: Bool
     }
 
-    struct UserParser: Parser {
-      var body: some Parser<Substring, User> {
+    struct UserParser: ParserProtocol {
+      var body: some ParserProtocol<Substring, User> {
         Parse(input: Substring.self, User.init) {
           Int.parser()
           ","
@@ -203,8 +203,8 @@ class ManyTests: XCTestCase {
       }
     }
 
-    struct UsersParser: Parser {
-      var body: some Parser<Substring, [User]> {
+    struct UsersParser: ParserProtocol {
+      var body: some ParserProtocol<Substring, [User]> {
         Many {
           UserParser()
         } separator: {
@@ -255,8 +255,8 @@ class ManyTests: XCTestCase {
   }
 
   func testTerminatorFails() {
-    struct IntsParser: Parser {
-      var body: some Parser<Substring, [Int]> {
+    struct IntsParser: ParserProtocol {
+      var body: some ParserProtocol<Substring, [Int]> {
         Many {
           Int.parser()
         } separator: {
@@ -283,8 +283,8 @@ class ManyTests: XCTestCase {
   }
 
   func testInfiniteLoop() {
-    struct ParserWithInfiniteLoop: Parser {
-      var body: some Parser<Substring, [Substring]> {
+    struct ParserWithInfiniteLoop: ParserProtocol {
+      var body: some ParserProtocol<Substring, [Substring]> {
         Many { Prefix(while: \.isNumber) }
       }
     }
@@ -303,10 +303,9 @@ class ManyTests: XCTestCase {
   }
 
   func testThrowingAccumulator() {
-    let parser: some Parser<Substring, [Int]> = Many(into: [Int]()) { (xs, x) throws in
+    let parser: some ParserProtocol<Substring, [Int]> = Many(into: [Int]()) { (xs, x) throws in
       struct UniqueIntegerError: Error {}
-      guard !xs.contains(x)
-      else { throw UniqueIntegerError() }
+      guard !xs.contains(x) else { throw UniqueIntegerError() }
       xs.append(x)
     } element: {
       Int.parser()

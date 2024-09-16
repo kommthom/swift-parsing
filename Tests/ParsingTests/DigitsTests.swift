@@ -50,8 +50,8 @@ final class DigitsTests: XCTestCase {
   func testZeroMinimum() {
     struct Rational: Equatable { var numerator, denominator: Int }
 
-    struct RationalParser: ParserPrinter {
-      var body: some ParserPrinter<Substring, Rational> {
+    struct RationalParser: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring, Rational> {
         Parse(.memberwise(Rational.init)) {
           Digits(0...)
           "."

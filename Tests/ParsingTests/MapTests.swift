@@ -38,13 +38,13 @@ final class MapTests: XCTestCase {
       .print(.blobJr)
     ) { error in
       XCTAssertEqual(
-        """
-        error: multiple failures occurred
+	"""
+	error: multiple failures occurred
 
-        error: expected blob
+	error: 	expected blob
 
-        error: expected blobSr
-        """,
+	error: 	expected blobSr
+	""",
         "\(error)"
       )
     }

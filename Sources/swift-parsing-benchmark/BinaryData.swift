@@ -1,4 +1,4 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Foundation
 import Parsing
 
@@ -25,7 +25,7 @@ import Parsing
 ///     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 let binaryDataSuite = BenchmarkSuite(name: "BinaryData") { suite in
   #if swift(>=5.8)
-    struct Word16Parser: Parser {
+    struct Word16Parser: ParserProtocol {
       func parse(_ input: inout ArraySlice<UInt8>) throws -> UInt16 {
         guard input.count >= 2
         else {
@@ -38,8 +38,8 @@ let binaryDataSuite = BenchmarkSuite(name: "BinaryData") { suite in
       }
     }
 
-    struct DNSHeaderParser: Parser {
-      var body: some Parser<ArraySlice<UInt8>, DNSHeader> {
+    struct DNSHeaderParser: ParserProtocol {
+      var body: some ParserProtocol<ArraySlice<UInt8>, DNSHeader> {
         Parse { id, fields1, fields2, counts in
           DNSHeader(
             id: id,
@@ -104,7 +104,7 @@ let binaryDataSuite = BenchmarkSuite(name: "BinaryData") { suite in
     var output: DNSHeader!
     var rest: ArraySlice<UInt8>!
 
-    suite.benchmark("Parser") {
+    suite.benchmark("ParserProtocol") {
       var input = input[...]
       output = try DNSHeaderParser().parse(&input)
       rest = input

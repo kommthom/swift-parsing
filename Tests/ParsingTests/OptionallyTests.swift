@@ -2,8 +2,8 @@ import Parsing
 import XCTest
 
 final class OptionalTests: XCTestCase {
-  struct OptionalBool: ParserPrinter {
-    var body: some ParserPrinter<Substring.UTF8View, Bool?> {
+  struct OptionalBool: ParserPrinterProtocol {
+    var body: some ParserPrinterProtocol<Substring.UTF8View, Bool?> {
       Optionally { Bool.parser() }
     }
   }
@@ -49,8 +49,8 @@ final class OptionalTests: XCTestCase {
   }
 
   func testPrintBadOptionalValue() {
-    struct OptionalPrefix: ParserPrinter {
-      var body: some ParserPrinter<Substring, Substring?> {
+    struct OptionalPrefix: ParserPrinterProtocol {
+      var body: some ParserPrinterProtocol<Substring, Substring?> {
         Optionally { Prefix { !$0.isWhitespace } }
       }
     }

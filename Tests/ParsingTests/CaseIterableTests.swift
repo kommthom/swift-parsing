@@ -8,8 +8,8 @@ final class CaseIterableTests: XCTestCase {
       case blobJr = "Blob Jr"
     }
 
-    struct People: Parser {
-      var body: some Parser<Substring.UTF8View, [Person]> {
+    struct People: ParserProtocol {
+      var body: some ParserProtocol<Substring.UTF8View, [Person]> {
         Many {
           Person.parser()
         } separator: {

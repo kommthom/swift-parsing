@@ -1,15 +1,18 @@
-import Benchmark
+@preconcurrency import Benchmark
 import Foundation
 import Parsing
 
+extension Double: Sendable {}
+typealias DoubleDouble = @Sendable (Double, Double) -> Double
+
 /// This benchmark demonstrates how to parse a recursive grammar: arithmetic.
 let arithmeticSuite = BenchmarkSuite(name: "Arithmetic") { suite in
-  struct AdditionAndSubtraction: Parser {
-    var body: some Parser<Substring.UTF8View, Double> {
+  struct AdditionAndSubtraction: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Double> {
       InfixOperator(associativity: .left) {
         OneOf {
-          "+".utf8.map { (+) as (Double, Double) -> Double }
-          "-".utf8.map { (-) }
+			"+".utf8.map { { $0 + $1 } as DoubleDouble }
+			"-".utf8.map { { $0 - $1 } }
         }
       } lowerThan: {
         MultiplicationAndDivision()
@@ -17,12 +20,12 @@ let arithmeticSuite = BenchmarkSuite(name: "Arithmetic") { suite in
     }
   }
 
-  struct MultiplicationAndDivision: Parser {
-    var body: some Parser<Substring.UTF8View, Double> {
+  struct MultiplicationAndDivision: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Double> {
       InfixOperator(associativity: .left) {
         OneOf {
-          "*".utf8.map { (*) as (Double, Double) -> Double }
-          "/".utf8.map { (/) }
+			"*".utf8.map { { $0 * $1 } as DoubleDouble }
+			"/".utf8.map { { $0 / $1 } }
         }
       } lowerThan: {
         Exponent()
@@ -30,18 +33,18 @@ let arithmeticSuite = BenchmarkSuite(name: "Arithmetic") { suite in
     }
   }
 
-  struct Exponent: Parser {
-    var body: some Parser<Substring.UTF8View, Double> {
+  struct Exponent: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Double> {
       InfixOperator(associativity: .left) {
-        "^".utf8.map { pow as (Double, Double) -> Double }
+		  "^".utf8.map { { pow($0, $1) } as DoubleDouble }
       } lowerThan: {
         Factor()
       }
     }
   }
 
-  struct Factor: Parser {
-    var body: some Parser<Substring.UTF8View, Double> {
+  struct Factor: ParserProtocol {
+    var body: some ParserProtocol<Substring.UTF8View, Double> {
       OneOf {
         Parse {
           "(".utf8
@@ -56,7 +59,7 @@ let arithmeticSuite = BenchmarkSuite(name: "Arithmetic") { suite in
 
   let input = "1+2*3/4-5^2"
   var output: Double!
-  suite.benchmark("Parser") {
+  suite.benchmark("ParserProtocol") {
     var input = input[...].utf8
     output = try AdditionAndSubtraction().parse(&input)
   } tearDown: {
@@ -64,11 +67,7 @@ let arithmeticSuite = BenchmarkSuite(name: "Arithmetic") { suite in
   }
 }
 
-public struct InfixOperator<Input, Operator: Parser, Operand: Parser>: Parser
-where
-  Operator.Input == Input,
-  Operand.Input == Input,
-  Operator.Output == (Operand.Output, Operand.Output) -> Operand.Output
+public struct InfixOperator<Input: Sendable, Operator: ParserProtocol, Operand: ParserProtocol>: ParserProtocol where Operator.Input == Input, Operand.Input == Input, Operator.Output == @Sendable (Operand.Output, Operand.Output) -> Operand.Output
 {
   public let `associativity`: Associativity
   public let operand: Operand
@@ -77,8 +76,8 @@ where
   @inlinable
   public init(
     associativity: Associativity,
-    @ParserBuilder<Input> _ operator: () -> Operator,
-    @ParserBuilder<Input> lowerThan operand: () -> Operand  // Should this be called `precedes:`?
+    @ParserBuilder<Input> _ operator: @Sendable () -> Operator,
+    @ParserBuilder<Input> lowerThan operand: @Sendable () -> Operand  // Should this be called `precedes:`?
   ) {
     self.associativity = `associativity`
     self.operand = operand()
@@ -120,7 +119,7 @@ where
   }
 }
 
-public enum Associativity {
+public enum Associativity: Sendable {
   case left
   case right
 }
