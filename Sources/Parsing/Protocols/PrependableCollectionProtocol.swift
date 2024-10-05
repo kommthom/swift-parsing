@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Thoms_Foundation
 
 /// A collection that supports empty initialization and the ability to prepend a sequence of
 /// elements of elements to itself.
@@ -124,16 +125,21 @@ extension RangeReplaceableCollection {
 	}
 }
 
-extension Array: PrependableCollectionProtocol, _EmptyInitializable where Array.Element: SendableMarker {}
-extension ArraySlice: PrependableCollectionProtocol, _EmptyInitializable where Element: SendableMarker {}
-extension ContiguousArray: PrependableCollectionProtocol, _EmptyInitializable where Element: SendableMarker {}
-extension Data: PrependableCollectionProtocol, _EmptyInitializable {}
-extension Slice: PrependableCollectionProtocol, _EmptyInitializable where Base: RangeReplaceableCollection & SendableMarker, Base.Index: SendableMarker, Base.Element: SendableMarker {}
+extension Array: PrependableCollectionProtocol, @retroactive _EmptyInitializable where Array.Element: SendableMarker {}
+extension ArraySlice: PrependableCollectionProtocol, @retroactive _EmptyInitializable where Element: SendableMarker {}
+extension ContiguousArray: PrependableCollectionProtocol, @retroactive _EmptyInitializable where Element: SendableMarker {}
+extension Data: PrependableCollectionProtocol, @retroactive _EmptyInitializable {}
+extension Slice: PrependableCollectionProtocol, @retroactive _EmptyInitializable where Base: RangeReplaceableCollection & SendableMarker, Base.Index: SendableMarker, Base.Element: SendableMarker {}
+extension String: @retroactive _EmptyInitializable {}
 extension String: PrependableCollectionProtocol {}
+extension String.UnicodeScalarView: @retroactive _EmptyInitializable {}
 extension String.UnicodeScalarView: PrependableCollectionProtocol {}
+extension Substring: @retroactive _EmptyInitializable {}
 extension Substring: PrependableCollectionProtocol {}
+extension Substring.UnicodeScalarView: @retroactive _EmptyInitializable {}
 extension Substring.UnicodeScalarView: PrependableCollectionProtocol {}
 
+extension String.UTF8View: @retroactive _EmptyInitializable {}
 extension String.UTF8View: PrependableCollectionProtocol {
   @inlinable
   public init() {
@@ -157,6 +163,7 @@ extension String.UTF8View: PrependableCollectionProtocol {
   }
 }
 
+extension Substring.UTF8View: @retroactive _EmptyInitializable {}
 extension Substring.UTF8View: PrependableCollectionProtocol {
   @inlinable
   public init() {

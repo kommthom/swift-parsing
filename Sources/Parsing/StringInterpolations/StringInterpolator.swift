@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 06.09.24.
 //
 
+import Thoms_Foundation
+
 public final class StringInterpolator: Sendable {
 	public typealias Output = String
 	@usableFromInline

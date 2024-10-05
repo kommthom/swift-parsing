@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 06.09.24.
 //
 
+import Thoms_Foundation
+
 public final class StringInterpolationTemplate: Sendable, ExpressibleByStringLiteral {
 	public let processElements: [StringInterpolationElementPair]
 	public let delimiters: StringInterpolationDelimiters

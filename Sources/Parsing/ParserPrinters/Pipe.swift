@@ -6,6 +6,8 @@
 //  Updated by Thomas Benninghaus on 01.09.24.
 //
 
+import Thoms_Foundation
+
 extension ParserProtocol {
 	/// Returns a parser that runs this parser, pipes its output into the given parser, and returns
 	/// the output of the given parser.

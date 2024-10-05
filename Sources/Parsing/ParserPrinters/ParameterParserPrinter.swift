@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 22.09.24.
 //
 
+import Thoms_Foundation
+
 @inlinable
 public func param<Output>(_ f: AnyConversion<String, Output>) throws -> AnyParserPrinter<Template, Output> {
 	return AnyParserPrinter<Template, Output>(

@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 09.09.24.
 //
 
+import Thoms_Foundation
+
 public struct StringFormat<Output: Sendable>: FormatProtocol {
 	public typealias Input = StringTemplate
 	public typealias Parser = AnyParserPrinter<Input, Output>

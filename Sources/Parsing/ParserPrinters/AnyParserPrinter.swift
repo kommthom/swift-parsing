@@ -6,6 +6,8 @@
 //  Updated by Thomas Benninghaus on 01.09.24.
 //
 
+import Thoms_Foundation
+
 extension ParserPrinterProtocol {
 	/// Wraps this parser with a type eraser.
 	///

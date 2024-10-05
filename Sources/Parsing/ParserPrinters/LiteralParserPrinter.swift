@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 22.09.24.
 //
 
+import Thoms_Foundation
+
 @inlinable
 public func lit(_ str: String) -> AnyParserPrinter<Template, Unit> {
 	return AnyParserPrinter<Template, Unit>(

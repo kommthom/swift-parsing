@@ -6,6 +6,7 @@
 //  Updated by Thomas Benninghaus on 31.08.24.
 //
 
+import Thoms_Foundation
 import Foundation
 
 extension ConversionProtocol {
@@ -267,7 +268,7 @@ extension ConversionProtocol where Output == Input {
 	}
 }
 
-extension ConversionProtocol where Output == (Input, Unit) {
+extension ConversionProtocol where Output == (Input, Thoms_Foundation.Unit) {
 	@inlinable
 	/// An isomorphism between `Input` and `(Input, Unit)`.
     public static var unitIso: AnyConversion<Input, Output> {
@@ -285,7 +286,7 @@ extension Optional where Wrapped: Sendable {
         public static var some: AnyConversion<Wrapped, Wrapped?> {
             return .init(
                 apply: { Optional.some($0) },
-                unapply: { id($0) }
+				unapply: { Parsing.id($0) }
             )
         }
     }
@@ -355,18 +356,18 @@ extension AnyConversion where Input == String, Output == Int {
     }
 }
 
-extension AnyConversion where Input == String, Output == IntWithDigits {
+extension AnyConversion where Input == String, Output == DefaultPaddedInt {
 	@inlinable
 	/// An isomorphism between strings and integers.
     public static var int: AnyConversion {
         return AnyConversion(
-            apply: { IntWithDigits.init($0) },
+            apply: { DefaultPaddedInt.init($0) },
             unapply: { String.init(describing: $0) }
         )
     }
 }
 
-extension AnyConversion where Input == String, Output == (String, IntWithDigits?) {
+extension AnyConversion where Input == String, Output == (String, DefaultPaddedInt?) {
 	@inlinable
 	/// An isomorphism between strings and integer/string combinations.
     public static var intString: AnyConversion {
@@ -379,7 +380,7 @@ extension AnyConversion where Input == String, Output == (String, IntWithDigits?
                 return (
                     result
                         .joined(),
-                    IntWithDigits(
+					DefaultPaddedInt(
                         String(first)
                     )
                 )

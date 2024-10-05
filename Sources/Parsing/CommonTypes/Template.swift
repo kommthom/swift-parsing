@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 24.06.24.
 //
 
+import Thoms_Foundation
+
 public final class Template: Sendable, ExpressibleByStringLiteral {
     public let parts: [String]
 

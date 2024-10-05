@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 31.08.24.
 //
 
+import Thoms_Foundation
+
 /// A ``Parser`` that can incrementally "print" an output value back into an input.
 ///
 /// > Note: Printing is the reverse operation of parsing, so the `Input` is essentially built up

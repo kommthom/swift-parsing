@@ -6,6 +6,8 @@
 //
 //
 
+import Thoms_Foundation
+
 public struct Format<Output: Sendable>: FormatProtocol, ExpressibleByStringLiteral {
 	public typealias Input = Template
 	public typealias Output = Output

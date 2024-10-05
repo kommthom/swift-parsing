@@ -5,6 +5,7 @@
 //  Created by Thomas Benninghaus on 09.09.24.
 //
 
+import Thoms_Foundation
 import Foundation
 
 public protocol MatchableProtocol: Sendable {
@@ -12,8 +13,8 @@ public protocol MatchableProtocol: Sendable {
 }
 
 @inlinable
-public func iso<U: MatchableProtocol>(_ f: U) -> AnyConversion<Unit, U> {
-	return AnyConversion<Unit, U>(
+public func iso<U: MatchableProtocol>(_ f: U) -> AnyConversion<Thoms_Foundation.Unit, U> {
+	return AnyConversion<Thoms_Foundation.Unit, U>(
 		apply: { _ in f },
 		unapply: { $0.match({ _ in f }) }
 	)

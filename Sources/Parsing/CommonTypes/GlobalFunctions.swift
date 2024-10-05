@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 10.09.24.
 //
 
+import Thoms_Foundation
+
 @inlinable
 public func <<< <A: Sendable, B: Sendable, C: Sendable>(_ b2c: @escaping @Sendable (B) -> C, _ a2b: @escaping @Sendable (A) -> B) -> @Sendable (A) -> C {
 	return { a in b2c(a2b(a)) }

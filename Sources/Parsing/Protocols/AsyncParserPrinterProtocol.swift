@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 11.09.24.
 //
 
+import Thoms_Foundation
+
 @rethrows public protocol AsyncParserPrinterProtocol<Input, Output>: AsyncParserProtocol {
 	func print(_ output: Output, into input: inout Input) async throws
 }

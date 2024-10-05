@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 06.09.24.
 //
 
+import Thoms_Foundation
+
 public typealias PrintingAlias<Input, Output> = @Sendable (Output, inout Input) throws -> Void // @Sendable (_ arg: Output) -> Input?
 public typealias ParsingAlias<Input, Output> = @Sendable (inout Input) throws -> Output //@Sendable (_ arg: Input) -> ParsingResult<Input, Output>
 

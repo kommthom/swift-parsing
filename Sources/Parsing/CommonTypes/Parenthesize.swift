@@ -7,6 +7,8 @@
 //  https://github.com/pointfreeco/swift-web/blob/master/Sources/ApplicativeRouter/PartialIso.swift
 //
 
+import Thoms_Foundation
+
 // MARK: A, B
 
 @inlinable

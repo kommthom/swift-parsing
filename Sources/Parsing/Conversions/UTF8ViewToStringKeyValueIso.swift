@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 12.09.24.
 //
 
+import Thoms_Foundation
+
 extension ConversionProtocol where Self == Conversions.UTF8ViewToStringKeyValueIso {
 	@inlinable
 	public static var stringKeyValue: Self { .init() }

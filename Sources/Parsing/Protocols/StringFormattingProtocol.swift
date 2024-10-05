@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 19.09.24.
 //
 
+import Thoms_Foundation
+
 public protocol StringFormattingProtocol {
 	@inlinable
 	static var format: String { get }

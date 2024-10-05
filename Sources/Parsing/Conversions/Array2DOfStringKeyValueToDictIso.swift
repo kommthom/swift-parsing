@@ -5,6 +5,7 @@
 //  Created by Thomas Benninghaus on 26.09.24.
 //
 
+import Thoms_Foundation
 
 extension ConversionProtocol where Self == Conversions.Array2DOfStringKeyValueToDictIso {
 	@inlinable

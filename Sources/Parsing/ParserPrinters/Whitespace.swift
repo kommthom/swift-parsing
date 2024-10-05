@@ -6,6 +6,8 @@
 //  Updated by Thomas Benninghaus on 01.09.24.
 //
 
+import Thoms_Foundation
+
 /// A parser that consumes whitespace from the beginning of input.
 public struct Whitespace<Length: CountingRangeProtocol & Sendable, InputToBytes: ConversionProtocol>: ParserProtocol where InputToBytes.Input: Collection, InputToBytes.Input.SubSequence == InputToBytes.Input, InputToBytes.Output: Collection, InputToBytes.Output.Element == UTF8.CodeUnit, InputToBytes.Output.SubSequence == InputToBytes.Output {
 	public enum Configuration: Sendable {

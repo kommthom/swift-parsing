@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 09.09.24.
 //
 
+import Thoms_Foundation
+
 public final class StringTemplate: TemplateProtocol {
 	public let template: Template
 	public let arguments: CVarArguments

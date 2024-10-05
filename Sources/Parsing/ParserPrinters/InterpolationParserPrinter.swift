@@ -5,6 +5,8 @@
 //  Created by Thomas Benninghaus on 11.09.24.
 //
 
+import Thoms_Foundation
+
 public struct InterpolationParserPrinter: ParserPrinterProtocol {
 	public let formatTemplate: StringInterpolationTemplate
 	
